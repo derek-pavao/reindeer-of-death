@@ -3,9 +3,9 @@ var router = express.Router();
 var http = require('http');
 var parseString = require('xml2js').parseString;
 
-var getBuildStatus = function () {
+var getBuildStatus = function (callback) {
     // console.log('make the request');
-    http.get('http://dpavao:password-here@astonishdev.net:8085/bamboo/rest/api/latest/result?os_authType=basic', function (res) {
+    http.get('http://username:password@astonishdev.net:8085/bamboo/rest/api/latest/result?os_authType=basic', function (res) {
 	var xmlStr = '';
  	// console.log('request is back');
 	res.on('data', function (chunk) {
@@ -28,18 +28,19 @@ var getBuildStatus = function () {
 		    console.log('plan: ', keyArr.join('-'), 'was', plan.$.state);
 		};
 		// app.set(result.results.results[0].result[0].$.key, result.results.results[0].result[0].$.state);
-		setTimeout(timeoutFn, 5000);
+		// setTimeout(timeoutFn, 5000);
+		callback();
 	    });
 	});
     });
 };
 
-var timeoutFn = function () {
-    getBuildStatus();
+// var timeoutFn = function () {
+// getBuildStatus();
     // console.log('build-status', app.get('build-status'));
-};
+// };
 
-setTimeout(timeoutFn, 5000);
+// setTimeout(timeoutFn, 5000);
 
 
 /* GET home page. */
@@ -48,7 +49,9 @@ router.get('/', function(req, res) {
 });
 
 router.get('/build-status/:plan', function (req, res) {
-    res.send(app.get(req.params.plan));
+    getBuildStatus(function () {
+	res.send(app.get(req.params.plan));
+    });
 });
 
 module.exports = router;
